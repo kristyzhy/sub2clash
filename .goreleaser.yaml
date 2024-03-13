@@ -12,6 +12,6 @@ builds:
       ldflags:
           - -s -w -X sub2clash/config.Version={{ .Version }}
       no_unique_dist_dir: true
-      binary: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
 archives:
-    - format: binary
+    - format: zip
+      name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
