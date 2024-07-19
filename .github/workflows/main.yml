@@ -1,9 +1,15 @@
-name: docker
+name: Docker Build and Push
 
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Docker image version'
+        required: true
+        default: 'latest'
 
 jobs:
   prepare-and-build:
@@ -48,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            "version=${{ github.ref_name }}"
+            "version=${{ github.event.inputs.version }}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
