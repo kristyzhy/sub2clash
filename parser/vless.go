@@ -105,15 +105,17 @@ func ParseVless(proxy string) (model.Proxy, error) {
 		result.Alpn = alpn
 		result.Sni = sni
 		result.AllowInsecure = insecureBool
-		result.Fingerprint = fp
+		result.ClientFingerprint = fp
 	}
 
 	if security == "reality" {
 		result.TLS = true
+		result.Servername = sni
 		result.RealityOpts = model.RealityOptions{
 			PublicKey: pbk,
 			ShortID:   sid,
 		}
+		result.ClientFingerprint = fp
 	}
 
 	if _type == "ws" {
@@ -133,7 +135,9 @@ func ParseVless(proxy string) (model.Proxy, error) {
 
 	if _type == "grpc" {
 		result.Network = "grpc"
-		result.Servername = serviceName
+		result.GrpcOpts = model.GrpcOptions{
+			GrpcServiceName: serviceName,
+		}
 	}
 
 	if _type == "http" {
