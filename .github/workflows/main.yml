@@ -1,9 +1,6 @@
 name: Docker Build and Push
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       version:
@@ -56,6 +53,6 @@ jobs:
           build-args: |
             "version=${{ github.event.inputs.version }}"
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags:  jessicayun/sub2clash:latest
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
