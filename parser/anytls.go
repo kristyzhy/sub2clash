@@ -3,15 +3,14 @@ package parser
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/nitezs/sub2clash/constant"
 	"github.com/nitezs/sub2clash/model"
 )
 
-func ParseHysteria(proxy string) (model.Proxy, error) {
-	if !strings.HasPrefix(proxy, constant.HysteriaPrefix) {
+func ParseAnytls(proxy string) (model.Proxy, error) {
+	if !strings.HasPrefix(proxy, constant.AnytlsPrefix) {
 		return model.Proxy{}, &ParseError{Type: ErrInvalidPrefix, Raw: proxy}
 	}
 
@@ -23,6 +22,14 @@ func ParseHysteria(proxy string) (model.Proxy, error) {
 			Raw:     proxy,
 		}
 	}
+
+	username := link.User.Username()
+	password, exist := link.User.Password()
+	if !exist {
+		password = username
+	}
+
+	query := link.Query()
 	server := link.Hostname()
 	if server == "" {
 		return model.Proxy{}, &ParseError{
@@ -31,7 +38,6 @@ func ParseHysteria(proxy string) (model.Proxy, error) {
 			Raw:     proxy,
 		}
 	}
-
 	portStr := link.Port()
 	if portStr == "" {
 		return model.Proxy{}, &ParseError{
@@ -40,30 +46,15 @@ func ParseHysteria(proxy string) (model.Proxy, error) {
 			Raw:     proxy,
 		}
 	}
-
 	port, err := ParsePort(portStr)
 	if err != nil {
 		return model.Proxy{}, &ParseError{
-			Type:    ErrInvalidPort,
-			Message: err.Error(),
-			Raw:     proxy,
+			Type: ErrInvalidPort,
+			Raw:  portStr,
 		}
 	}
-
-	query := link.Query()
-
-	protocol, auth, insecure, upmbps, downmbps, obfs, alpnStr := query.Get("protocol"), query.Get("auth"), query.Get("insecure"), query.Get("upmbps"), query.Get("downmbps"), query.Get("obfs"), query.Get("alpn")
-	insecureBool, err := strconv.ParseBool(insecure)
-	if err != nil {
-		insecureBool = false
-	}
-
-	var alpn []string
-	alpnStr = strings.TrimSpace(alpnStr)
-	if alpnStr != "" {
-		alpn = strings.Split(alpnStr, ",")
-	}
-
+	insecure, sni := query.Get("insecure"), query.Get("sni")
+	insecureBool := insecure == "1"
 	remarks := link.Fragment
 	if remarks == "" {
 		remarks = fmt.Sprintf("%s:%s", server, portStr)
@@ -71,18 +62,13 @@ func ParseHysteria(proxy string) (model.Proxy, error) {
 	remarks = strings.TrimSpace(remarks)
 
 	result := model.Proxy{
-		Type:           "hysteria",
+		Type:           "anytls",
 		Name:           remarks,
 		Server:         server,
 		Port:           port,
-		Up:             upmbps,
-		Down:           downmbps,
-		Auth:           auth,
-		Obfs:           obfs,
+		Password:       password,
+		Sni:            sni,
 		SkipCertVerify: insecureBool,
-		Alpn:           alpn,
-		Protocol:       protocol,
-		AllowInsecure:  insecureBool,
 	}
 	return result, nil
 }

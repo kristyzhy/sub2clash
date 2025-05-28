@@ -3,16 +3,17 @@ package handler
 import (
 	_ "embed"
 	"net/http"
-	"sub2clash/config"
-	"sub2clash/model"
-	"sub2clash/validator"
+
+	"github.com/nitezs/sub2clash/config"
+	"github.com/nitezs/sub2clash/model"
+	"github.com/nitezs/sub2clash/validator"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 )
 
 func SubHandler(c *gin.Context) {
-	// 从请求中获取参数
+
 	query, err := validator.ParseQuery(c)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -23,7 +24,15 @@ func SubHandler(c *gin.Context) {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	// 输出
+
+	if len(query.Subs) == 1 {
+		userInfoHeader, err := fetchSubscriptionUserInfo(query.Subs[0], "clash")
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		}
+		c.Header("subscription-userinfo", userInfoHeader)
+	}
+
 	if query.NodeListMode {
 		nodelist := model.NodeList{}
 		nodelist.Proxies = sub.Proxies

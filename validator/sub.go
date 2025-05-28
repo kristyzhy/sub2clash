@@ -31,6 +31,7 @@ type SubValidator struct {
 	ReplaceTo           []string             `form:"-" binding:""`
 	NodeListMode        bool                 `form:"nodeList,default=false" binding:""`
 	IgnoreCountryGrooup bool                 `form:"ignoreCountryGroup,default=false" binding:""`
+	UserAgent           string               `form:"userAgent" binding:""`
 }
 
 type RuleProviderStruct struct {
@@ -110,7 +111,7 @@ func ParseQuery(c *gin.Context) (SubValidator, error) {
 				},
 			)
 		}
-		// 校验 Rule-Provider 是否有重名
+
 		names := make(map[string]bool)
 		for _, ruleProvider := range query.RuleProviders {
 			if _, ok := names[ruleProvider.Name]; ok {

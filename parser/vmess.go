@@ -5,8 +5,9 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sub2clash/constant"
-	"sub2clash/model"
+
+	"github.com/nitezs/sub2clash/constant"
+	"github.com/nitezs/sub2clash/model"
 )
 
 func ParseVmess(proxy string) (model.Proxy, error) {
@@ -99,10 +100,6 @@ func ParseVmess(proxy string) (model.Proxy, error) {
 			},
 		}
 	}
-
-	// if vmess.Net == "quic" {
-	// 	// 未查到相关支持文档
-	// }
 
 	if vmess.Net == "grpc" {
 		result.GrpcOpts = model.GrpcOptions{
